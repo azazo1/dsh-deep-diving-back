@@ -124,6 +124,35 @@ jobs:
       - name: 测试
         run: pnpm run test
 
+      - name: 打包发布用 tarball
+        run: |
+          set -euo pipefail
+          pnpm pack
+          mv dsh-deep-diving-back-*.tgz dsh-deep-diving-back.tgz
+
+      - name: 校验 tarball 内容
+        run: |
+          set -euo pipefail
+          tar -tzf dsh-deep-diving-back.tgz > tarball-contents.txt
+          for expected in \
+            package/package.json \
+            package/cordis.patch.yml \
+            package/lib/index.js \
+            package/lib/client.js; do
+            if ! grep -qx "$expected" tarball-contents.txt; then
+              echo "tarball 缺少 $expected" >&2
+              exit 1
+            fi
+          done
+
+      - name: 上传发布用 tarball
+        uses: actions/upload-artifact@v7
+        with:
+          name: dsh-deep-diving-back-tarball
+          path: dsh-deep-diving-back.tgz
+          if-no-files-found: error
+          retention-days: 14
+
   release:
     if: needs.version.outputs.is_release == 'true'
     needs: [version, check]
@@ -137,6 +166,11 @@ jobs:
           ref: ${{ needs.version.outputs.source_ref }}
           fetch-depth: 0
           fetch-tags: true
+
+      - name: 下载发布用 tarball
+        uses: actions/download-artifact@v8
+        with:
+          name: dsh-deep-diving-back-tarball
 
       - name: 重新获取 annotated tag object
         env:
@@ -223,6 +257,11 @@ jobs:
         run: |
           set -euo pipefail
 
+          if [[ ! -f dsh-deep-diving-back.tgz ]]; then
+            echo "缺少发布用 tarball: dsh-deep-diving-back.tgz" >&2
+            exit 1
+          fi
+
           prerelease_args=()
           if [[ "$VERSION" == *-* ]]; then
             prerelease_args+=(--prerelease)
@@ -234,8 +273,9 @@ jobs:
               --title "dsh-deep-diving-back v$VERSION" \
               --notes-file release-notes.md \
               "${prerelease_args[@]}"
+            gh release upload "$TAG_NAME" dsh-deep-diving-back.tgz --clobber
           else
-            gh release create "$TAG_NAME" \
+            gh release create "$TAG_NAME" dsh-deep-diving-back.tgz \
               --verify-tag \
               --title "dsh-deep-diving-back v$VERSION" \
               --notes-file release-notes.md \
