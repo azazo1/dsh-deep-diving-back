@@ -281,3 +281,45 @@ jobs:
               --notes-file release-notes.md \
               "${prerelease_args[@]}"
           fi
+
+  publish:
+    if: needs.version.outputs.is_release == 'true'
+    needs: [version, check]
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: 检出发布 tag
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.version.outputs.source_ref }}
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: 准备 Node
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+
+      - name: 发布到 npm
+        env:
+          VERSION: ${{ needs.version.outputs.version }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          package_name="$(node -p "require('./package.json').name")"
+
+          if npm view "${package_name}@${VERSION}" version >/dev/null 2>&1; then
+            echo "${package_name}@${VERSION} 已存在于 npm, 跳过发布"
+            exit 0
+          fi
+
+          publish_args=()
+          if [[ "$VERSION" == *-* ]]; then
+            publish_args+=(--tag next)
+          fi
+
+          npm publish "${publish_args[@]}"
