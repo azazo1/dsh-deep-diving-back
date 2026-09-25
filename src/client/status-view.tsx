@@ -3,11 +3,13 @@
  *
  * 结构与 0.1.6 `ChatView.tsx` 的 `TurnStatus` 一致: `role="status"` 的一行文字,
  * 运行满 15 秒后在右侧补一个 aria-hidden 的计时. 锚点优先取本回合 `turn/start`
- * 的时间 (中途刷新页面也不会把计时清零), 取不到时退回挂载时间.
+ * 的时间 (中途刷新页面也不会把计时清零), 取不到时退回挂载时间. 文案的省略号
+ * 由 `status-label.ts` 补回, 见那里的说明.
  */
 import { memo, useEffect, useState } from 'react'
 import type { ChatNodeViewProps } from '@deepseek-ai/dsh-client-ui-chat/client'
 import { CLOCK_INTERVAL_MS, clockVisible, formatRunDuration } from './run-clock.ts'
+import { deepDivingLabel } from './status-label.ts'
 
 /** 组件属性由 keyed slot 合成: 节点数据 + chat 命名空间的翻译位. */
 type DeepDivingStatusProps = ChatNodeViewProps<'deep-diving-status'>
@@ -25,7 +27,7 @@ export const DeepDivingStatusView = memo(function DeepDivingStatusView({
   const elapsedMs = Math.max(0, now - anchor)
   return (
     <div className="ddb-turn-status" role="status" aria-live="polite">
-      {t('chat.deepDiving')}
+      {deepDivingLabel(t('chat.deepDiving'))}
       {clockVisible(elapsedMs) && (
         <span className="ddb-turn-status-clock" aria-hidden="true">
           {formatRunDuration(elapsedMs, t)}
