@@ -1,0 +1,71 @@
+{
+  "name": "dsh-deep-diving-back",
+  "version": "0.1.0",
+  "description": "把 DSH 0.1.6 及以前那个蓝色流光的深度求索中运行标志加回来, 并保留 steer 是否已并入请求的上下位置语义",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "packageManager": "pnpm@12.3.4",
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/index.js.map",
+    "lib/client.js",
+    "lib/client.js.map",
+    "cordis.patch.yml",
+    "README.md"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-renderer",
+        "@deepseek-ai/dsh-client-ui-conversation",
+        "@deepseek-ai/dsh-client-ui-chat"
+      ]
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "pnpm run build:host && pnpm run build:client",
+    "build:host": "tsdown --config tsdown.host.config.ts",
+    "build:client": "tsdown --config tsdown.client.config.ts",
+    "test": "vitest run",
+    "check": "pnpm run typecheck && pnpm run build && pnpm run test"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/dsh-client-ui-chat": ">=0.1.7-rc.2 <0.2.0",
+    "@deepseek-ai/dsh-client-ui-conversation": ">=0.1.7-rc.2 <0.2.0",
+    "@deepseek-ai/dsh-client-ui-renderer": ">=0.1.7-rc.2 <0.2.0",
+    "@deepseek-ai/dsh-client-ui-slots": ">=0.1.7-rc.2 <0.2.0",
+    "react": "^18.2.0"
+  },
+  "devDependencies": {
+    "@deepseek-ai/cordis": ">=4.0.0 <5.0.0",
+    "@deepseek-ai/dsh-client-ui-chat": ">=0.1.7-rc.2 <0.2.0",
+    "@deepseek-ai/dsh-client-ui-conversation": ">=0.1.7-rc.2 <0.2.0",
+    "@deepseek-ai/dsh-client-ui-renderer": ">=0.1.7-rc.2 <0.2.0",
+    "@deepseek-ai/dsh-client-ui-slots": ">=0.1.7-rc.2 <0.2.0",
+    "@types/node": "^22.20.0",
+    "@types/react": "~18.3.1",
+    "react": "^18.2.0",
+    "tsdown": "^0.22.2",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.8"
+  }
+}

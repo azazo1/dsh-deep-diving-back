@@ -1,0 +1,3 @@
+# DSH 以预发布版本线发布, 24 小时发布窗口会挡住刚发布的 rc 包.
+minimumReleaseAgeExclude:
+  - '@deepseek-ai/*'

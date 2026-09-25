@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "policy": "dsh-plugin-naming/v1",
+  "plugin": {
+    "namespace": "azazo1",
+    "name": "deep-diving-back",
+    "coordinate": "azazo1/deep-diving-back",
+    "packageName": "dsh-deep-diving-back"
+  },
+  "names": {
+    "pluginNames": ["deep-diving-back"],
+    "loaderIds": ["dsh-deep-diving-back"],
+    "services": [],
+    "tools": [],
+    "commands": [],
+    "skills": [],
+    "skillProviders": [],
+    "events": [],
+    "settingsNamespaces": [],
+    "routes": []
+  }
+}
